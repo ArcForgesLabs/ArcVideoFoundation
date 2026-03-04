@@ -51,6 +51,7 @@ else()
     -Wall
     -Wextra
     -Wno-unused-parameter
+    -Wno-gnu-line-marker
     -Wshadow
   )
 endif()
