@@ -7,14 +7,16 @@ find_dependency(Imath CONFIG REQUIRED)
 # FFmpeg — locate via FindFFMPEG module (e.g. vcpkg's FindFFMPEG.cmake).
 find_dependency(FFMPEG MODULE REQUIRED)
 if(NOT TARGET FFMPEG::FFMPEG)
-  if(DEFINED FFMPEG_LIBRARIES)
+  if(DEFINED FFMPEG_LIBRARIES AND FFMPEG_LIBRARIES
+      AND DEFINED FFMPEG_INCLUDE_DIRS AND FFMPEG_INCLUDE_DIRS)
     add_library(FFMPEG::FFMPEG INTERFACE IMPORTED)
     set_target_properties(FFMPEG::FFMPEG PROPERTIES
       INTERFACE_LINK_LIBRARIES     "${FFMPEG_LIBRARIES}"
       INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_INCLUDE_DIRS}"
     )
   else()
-    message(FATAL_ERROR "FFmpeg found but FFMPEG::FFMPEG target could not be created")
+    message(FATAL_ERROR "FFmpeg found but FFMPEG::FFMPEG target could not be created: "
+                        "FFMPEG_LIBRARIES or FFMPEG_INCLUDE_DIRS is missing or empty")
   endif()
 endif()
 

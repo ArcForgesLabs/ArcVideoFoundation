@@ -27,7 +27,7 @@ jobs:
           echo "commit=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
 
           # Download the source archive exactly as vcpkg_from_github would
-          ARCHIVE_URL="https://github.com/ArcForgesLabs/ArcVideoFoundation/archive/${COMMIT_SHA}.tar.gz"
+          ARCHIVE_URL="https://api.github.com/repos/ArcForgesLabs/ArcVideoFoundation/tarball/${COMMIT_SHA}"
           curl -fsSL -H "Authorization: token ${GH_TOKEN}" -o /tmp/source.tar.gz "$ARCHIVE_URL"
           HASH=$(sha512sum /tmp/source.tar.gz | cut -d ' ' -f 1)
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
