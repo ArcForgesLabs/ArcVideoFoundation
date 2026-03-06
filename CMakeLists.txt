@@ -20,7 +20,9 @@ project(arcvideo-foundation VERSION 0.1.0 LANGUAGES CXX)
 
 # Global settings only when building standalone
 if(PROJECT_IS_TOP_LEVEL)
-  set(CMAKE_CXX_STANDARD 20)
+  option(USE_WERROR "Error on compile warning" OFF)
+
+  set(CMAKE_CXX_STANDARD 23)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -33,27 +35,46 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()
 
 # --- Compiler options ---
+# On clang-cl, /W4 is the correct equivalent of GCC -Wall -Wextra.
 if(MSVC)
   set(FOUNDATION_COMPILE_OPTIONS
-    /wd4267
-    /wd4244
-    /experimental:external
-    /external:anglebrackets
-    /external:W0
-    "$<$<CONFIG:Release>:/O2>"
+    /W4
+    /EHsc
     "$<$<COMPILE_LANGUAGE:CXX>:/MP>"
+    "$<$<CONFIG:Release>:/O2>"
   )
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # clang-cl: suppress only FASTBuild and MSVC-compat noise
+    list(APPEND FOUNDATION_COMPILE_OPTIONS
+      -Wno-unused-command-line-argument
+      -Wno-unused-parameter
+      -Wno-microsoft-include
+      -Wno-gnu-line-marker
+    )
+  else()
+    # Native cl.exe: use /external:W0 to suppress third-party header warnings
+    list(APPEND FOUNDATION_COMPILE_OPTIONS
+      /external:anglebrackets
+      /external:W0
+      /wd4100
+    )
+  endif()
+  if(USE_WERROR)
+    list(APPEND FOUNDATION_COMPILE_OPTIONS /WX)
+  endif()
 else()
   set(FOUNDATION_COMPILE_OPTIONS
     "$<$<CONFIG:Release>:-O2>"
     -Wuninitialized
-    -pedantic-errors
     -Wall
     -Wextra
     -Wno-unused-parameter
     -Wno-gnu-line-marker
     -Wshadow
   )
+  if(USE_WERROR)
+    list(APPEND FOUNDATION_COMPILE_OPTIONS -Werror)
+  endif()
 endif()
 
 # --- Dependencies ---
@@ -107,7 +128,7 @@ target_include_directories(arcvideo-foundation
 )
 
 target_compile_options(arcvideo-foundation PRIVATE ${FOUNDATION_COMPILE_OPTIONS})
-target_compile_features(arcvideo-foundation PUBLIC cxx_std_20)
+target_compile_features(arcvideo-foundation PUBLIC cxx_std_23)
 
 # Link dependencies
 target_link_libraries(arcvideo-foundation
