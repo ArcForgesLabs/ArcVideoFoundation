@@ -254,7 +254,7 @@ Color::DataType Color::GetRoughLuminance() const
 
 Color &Color::operator+=(const Color &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] += rhs.data_[i];
   }
 
@@ -263,7 +263,7 @@ Color &Color::operator+=(const Color &rhs)
 
 Color &Color::operator-=(const Color &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] -= rhs.data_[i];
   }
 
@@ -272,7 +272,7 @@ Color &Color::operator-=(const Color &rhs)
 
 Color &Color::operator+=(const DataType &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] += rhs;
   }
 
@@ -281,7 +281,7 @@ Color &Color::operator+=(const DataType &rhs)
 
 Color &Color::operator-=(const DataType &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] -= rhs;
   }
 
@@ -290,7 +290,7 @@ Color &Color::operator-=(const DataType &rhs)
 
 Color &Color::operator*=(const DataType &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] *= rhs;
   }
 
@@ -299,7 +299,7 @@ Color &Color::operator*=(const DataType &rhs)
 
 Color &Color::operator/=(const DataType &rhs)
 {
-  for (int i = 0; i < RGBA; i++) {
+  for (unsigned int i = 0; i < RGBA; i++) {
     data_[i] /= rhs;
   }
 

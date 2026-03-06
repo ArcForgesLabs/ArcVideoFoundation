@@ -192,7 +192,7 @@ rational Timecode::timecode_to_time(std::string timecode, const rational &timeba
     static const std::regex timecode_delim("(:)|(;)");
     std::vector<std::string> timecode_split = StringUtils::split_regex(timecode, timecode_delim);
 
-    const int element_count = display == kTimecodeSeconds ? 3 : 4;
+    const size_t element_count = display == kTimecodeSeconds ? 3 : 4;
 
     // Remove excess tokens (we're only interested in HH:MM:SS.FF)
     if (timecode_split.size() > element_count) {
