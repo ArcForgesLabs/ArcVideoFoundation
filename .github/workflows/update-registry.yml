@@ -1,0 +1,68 @@
+name: Update Registry Port
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  update-port:
+    name: Update ArcVideoRegistry
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Foundation
+        uses: actions/checkout@v6
+
+      - name: Calculate SHA512
+        id: calc
+        env:
+          GH_TOKEN: ${{ secrets.PAT_FOR_REGISTRY }}
+        run: |
+          set -euo pipefail
+          COMMIT_SHA=$(git rev-parse HEAD)
+          echo "commit=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+
+          # Download the source archive exactly as vcpkg_from_github would
+          ARCHIVE_URL="https://github.com/ArcForgesLabs/ArcVideoFoundation/archive/${COMMIT_SHA}.tar.gz"
+          curl -fsSL -H "Authorization: token ${GH_TOKEN}" -o /tmp/source.tar.gz "$ARCHIVE_URL"
+          HASH=$(sha512sum /tmp/source.tar.gz | cut -d ' ' -f 1)
+          echo "hash=$HASH" >> "$GITHUB_OUTPUT"
+
+          echo "Commit: $COMMIT_SHA"
+          echo "SHA512: $HASH"
+
+      - name: Checkout Registry
+        uses: actions/checkout@v6
+        with:
+          repository: ArcForgesLabs/ArcVideoRegistry
+          token: ${{ secrets.PAT_FOR_REGISTRY }}
+          path: registry
+
+      - name: Update portfile
+        run: |
+          set -euo pipefail
+          PORTFILE="registry/ports/arcvideo-foundation/portfile.cmake"
+
+          sed -i "s|REF .*|REF ${{ steps.calc.outputs.commit }}|" "$PORTFILE"
+          sed -i "s|SHA512 .*|SHA512 ${{ steps.calc.outputs.hash }}|" "$PORTFILE"
+
+          echo "--- Updated portfile ---"
+          head -10 "$PORTFILE"
+
+      - name: Commit and push
+        run: |
+          cd registry
+          git config user.name "ArcVideo Bot"
+          git config user.email "bot@arcforges.dev"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          SHORT_SHA=$(echo "${{ steps.calc.outputs.commit }}" | cut -c1-8)
+          git commit -m "bot: update arcvideo-foundation to ${SHORT_SHA}"
+          git push
