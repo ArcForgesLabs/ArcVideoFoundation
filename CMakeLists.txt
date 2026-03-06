@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 4.2 FATAL_ERROR)
 
-project(arcvideo-foundation VERSION 0.1.0 LANGUAGES CXX)
+project(arcvideo-foundation VERSION 1.0.0 LANGUAGES CXX)
 
 # Global settings only when building standalone
 if(PROJECT_IS_TOP_LEVEL)
@@ -115,6 +115,9 @@ file(GLOB_RECURSE FOUNDATION_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
+# --- Install layout (needed before INSTALL_INTERFACE) ---
+include(GNUInstallDirs)
+
 # --- Library target ---
 add_library(arcvideo-foundation STATIC
   ${FOUNDATION_HEADERS}
@@ -124,8 +127,10 @@ add_library(arcvideo-foundation STATIC
 target_include_directories(arcvideo-foundation
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+set_target_properties(arcvideo-foundation PROPERTIES EXPORT_NAME Foundation)
 
 target_compile_options(arcvideo-foundation PRIVATE ${FOUNDATION_COMPILE_OPTIONS})
 target_compile_features(arcvideo-foundation PUBLIC cxx_std_23)
@@ -138,12 +143,15 @@ target_link_libraries(arcvideo-foundation
 )
 
 if(FOUNDATION_HAS_OPENTIME)
+  set(ARCVIDEO_FOUNDATION_WITH_OTIO ON)
   if(TARGET OTIO::opentime)
     target_link_libraries(arcvideo-foundation PUBLIC OTIO::opentime)
   else()
     target_link_libraries(arcvideo-foundation PUBLIC opentime)
   endif()
   target_compile_definitions(arcvideo-foundation PUBLIC USE_OTIO)
+else()
+  set(ARCVIDEO_FOUNDATION_WITH_OTIO OFF)
 endif()
 
 # Platform definitions
@@ -153,3 +161,41 @@ endif()
 
 # --- Alias for parent project consumption ---
 add_library(ArcVideo::Foundation ALIAS arcvideo-foundation)
+
+# --- Install rules (for vcpkg / find_package) ---
+include(CMakePackageConfigHelpers)
+
+install(TARGETS arcvideo-foundation
+  EXPORT arcvideo-foundation-targets
+  ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+)
+
+install(DIRECTORY include/
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(EXPORT arcvideo-foundation-targets
+  FILE arcvideo-foundation-targets.cmake
+  NAMESPACE ArcVideo::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/arcvideo-foundation-config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config-version.cmake"
+  VERSION "${PROJECT_VERSION}"
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
