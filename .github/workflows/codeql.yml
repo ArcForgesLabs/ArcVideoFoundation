@@ -117,6 +117,10 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
           queries: security-and-quality
+          config: |
+            paths:
+              - include
+              - src
 
       - name: Configure (CMake)
         run: cmake --preset linux-ci
