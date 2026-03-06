@@ -98,7 +98,8 @@ if(PROJECT_IS_TOP_LEVEL)
 endif()
 
 # OpenTime (optional, from parent project or vcpkg)
-find_package(opentime CONFIG QUIET)
+# Package config is "OpenTimeConfig.cmake" — case matters on Linux.
+find_package(OpenTime CONFIG QUIET)
 
 if(TARGET OTIO::opentime)
   set(FOUNDATION_HAS_OPENTIME TRUE)
