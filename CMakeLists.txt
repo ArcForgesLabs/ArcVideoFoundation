@@ -127,6 +127,8 @@ target_include_directories(arcvideo-foundation
     $<INSTALL_INTERFACE:include>
 )
 
+set_target_properties(arcvideo-foundation PROPERTIES EXPORT_NAME Foundation)
+
 target_compile_options(arcvideo-foundation PRIVATE ${FOUNDATION_COMPILE_OPTIONS})
 target_compile_features(arcvideo-foundation PUBLIC cxx_std_23)
 
@@ -163,11 +165,11 @@ install(TARGETS arcvideo-foundation
   ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
-  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  INCLUDES DESTINATION "include"
 )
 
 install(DIRECTORY include/
-  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  DESTINATION "include"
 )
 
 install(EXPORT arcvideo-foundation-targets
