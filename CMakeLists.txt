@@ -115,6 +115,9 @@ file(GLOB_RECURSE FOUNDATION_SOURCES CONFIGURE_DEPENDS
   "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 
+# --- Install layout (needed before INSTALL_INTERFACE) ---
+include(GNUInstallDirs)
+
 # --- Library target ---
 add_library(arcvideo-foundation STATIC
   ${FOUNDATION_HEADERS}
@@ -160,7 +163,6 @@ endif()
 add_library(ArcVideo::Foundation ALIAS arcvideo-foundation)
 
 # --- Install rules (for vcpkg / find_package) ---
-include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 install(TARGETS arcvideo-foundation
@@ -168,7 +170,6 @@ install(TARGETS arcvideo-foundation
   ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
-  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
 install(DIRECTORY include/

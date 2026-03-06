@@ -2,18 +2,19 @@
 
 include(CMakeFindDependencyMacro)
 
-find_dependency(Imath CONFIG)
+find_dependency(Imath CONFIG REQUIRED)
 
-# FFmpeg — locate via FindFFMPEG module (e.g. vcpkg's FindFFMPEG.cmake)
-# and ensure the FFMPEG::FFMPEG target exists.
-find_dependency(FFMPEG MODULE)
+# FFmpeg — locate via FindFFMPEG module (e.g. vcpkg's FindFFMPEG.cmake).
+find_dependency(FFMPEG MODULE REQUIRED)
 if(NOT TARGET FFMPEG::FFMPEG)
-  if(FFMPEG_FOUND AND DEFINED FFMPEG_LIBRARIES)
+  if(DEFINED FFMPEG_LIBRARIES)
     add_library(FFMPEG::FFMPEG INTERFACE IMPORTED)
     set_target_properties(FFMPEG::FFMPEG PROPERTIES
       INTERFACE_LINK_LIBRARIES     "${FFMPEG_LIBRARIES}"
       INTERFACE_INCLUDE_DIRECTORIES "${FFMPEG_INCLUDE_DIRS}"
     )
+  else()
+    message(FATAL_ERROR "FFmpeg found but FFMPEG::FFMPEG target could not be created")
   endif()
 endif()
 
