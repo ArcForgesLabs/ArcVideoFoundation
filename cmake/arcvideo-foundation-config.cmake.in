@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(Imath CONFIG)
+
+# FFmpeg does not provide a standard CMake config; consumers must set up
+# the FFMPEG::FFMPEG target themselves (e.g. via vcpkg's FindFFMPEG.cmake).
+
+include("${CMAKE_CURRENT_LIST_DIR}/arcvideo-foundation-targets.cmake")
+
+check_required_components(arcvideo-foundation)

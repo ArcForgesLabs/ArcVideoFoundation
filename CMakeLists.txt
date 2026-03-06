@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 4.2 FATAL_ERROR)
 
-project(arcvideo-foundation VERSION 0.1.0 LANGUAGES CXX)
+project(arcvideo-foundation VERSION 1.0.0 LANGUAGES CXX)
 
 # Global settings only when building standalone
 if(PROJECT_IS_TOP_LEVEL)
@@ -153,3 +153,42 @@ endif()
 
 # --- Alias for parent project consumption ---
 add_library(ArcVideo::Foundation ALIAS arcvideo-foundation)
+
+# --- Install rules (for vcpkg / find_package) ---
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(TARGETS arcvideo-foundation
+  EXPORT arcvideo-foundation-targets
+  ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(DIRECTORY include/
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(EXPORT arcvideo-foundation-targets
+  FILE arcvideo-foundation-targets.cmake
+  NAMESPACE ArcVideo::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/arcvideo-foundation-config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config-version.cmake"
+  COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/arcvideo-foundation-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/arcvideo-foundation"
+)
