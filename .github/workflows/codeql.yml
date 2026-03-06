@@ -1,0 +1,134 @@
+name: "CodeQL Advanced"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: [self-hosted, linux, arcforges]
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 180
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: /cache/vcpkg
+      VCPKG_DEFAULT_HOST_TRIPLET: x64-linux-dynamic
+      GLOBAL_VCPKG_PATH: /tmp/vcpkg
+      VCPKG_MAX_CONCURRENCY: 6
+      CMAKE_BUILD_PARALLEL_LEVEL: 6
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: c-cpp
+            build-mode: manual
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # ── Toolchain ─────────────────────────────────────────────
+      - name: Install system dependencies
+        run: |
+          set -euo pipefail
+          apt-get update -qq
+          apt-get install -y --no-install-recommends \
+            wget unzip git curl pkg-config \
+            autoconf autoconf-archive automake libtool \
+            libltdl-dev \
+            lsb-release software-properties-common gnupg ca-certificates \
+            g++ nasm
+          wget -qO- https://apt.llvm.org/llvm.sh | bash -s -- 20
+          update-alternatives --install /usr/bin/clang   clang   /usr/bin/clang-20   100
+          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-20 100
+          update-alternatives --install /usr/bin/lld     lld     /usr/bin/lld-20     100
+
+      - name: Install CMake 4.2.3
+        run: |
+          wget -qO- https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-linux-x86_64.tar.gz \
+            | tar -xz -C /tmp
+          echo "/tmp/cmake-4.2.3-linux-x86_64/bin" >> "$GITHUB_PATH"
+
+      - name: Install FASTBuild v1.19
+        run: |
+          mkdir -p /tmp/fastbuild
+          wget -O /tmp/fastbuild.zip \
+            https://www.fastbuild.org/downloads/v1.19/FASTBuild-Linux-x64-v1.19.zip
+          unzip -o /tmp/fastbuild.zip -d /tmp/fastbuild
+          chmod +x /tmp/fastbuild/fbuild /tmp/fastbuild/fbuildworker
+          ln -sf /tmp/fastbuild/fbuild /tmp/fastbuild/FBuild
+          echo "/tmp/fastbuild" >> "$GITHUB_PATH"
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -f /tmp/vcpkg/vcpkg ]; then
+            rm -rf /tmp/vcpkg
+            git clone --depth 1 https://github.com/microsoft/vcpkg.git /tmp/vcpkg
+            /tmp/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          echo "VCPKG_ROOT=/tmp/vcpkg" >> "$GITHUB_ENV"
+          echo "/tmp/vcpkg" >> "$GITHUB_PATH"
+
+      - name: Verify tool versions
+        run: |
+          echo "CMake:    $(cmake --version | head -1)"
+          echo "Clang:    $(clang++ --version | head -1)"
+          echo "FBuild:   $(fbuild -version 2>&1 | head -1)"
+          echo "vcpkg:    $(vcpkg version 2>&1 | head -2 | tail -1)"
+
+      # ── vcpkg ─────────────────────────────────────────────────
+      - name: Ensure vcpkg binary cache dir
+        run: mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+      - name: Install vcpkg packages
+        run: |
+          vcpkg install \
+            --triplet x64-linux-dynamic \
+            --host-triplet x64-linux-dynamic \
+            openexr imath ffmpeg
+
+      # ── CodeQL ────────────────────────────────────────────────
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-and-quality
+          config: |
+            paths:
+              - include
+              - src
+
+      - name: Configure (CMake)
+        run: cmake --preset linux-ci
+
+      - name: Build
+        run: cmake --build build/linux-ci
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
