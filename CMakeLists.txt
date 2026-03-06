@@ -124,7 +124,7 @@ add_library(arcvideo-foundation STATIC
 target_include_directories(arcvideo-foundation
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 set_target_properties(arcvideo-foundation PROPERTIES EXPORT_NAME Foundation)
@@ -140,12 +140,15 @@ target_link_libraries(arcvideo-foundation
 )
 
 if(FOUNDATION_HAS_OPENTIME)
+  set(ARCVIDEO_FOUNDATION_WITH_OTIO ON)
   if(TARGET OTIO::opentime)
     target_link_libraries(arcvideo-foundation PUBLIC OTIO::opentime)
   else()
     target_link_libraries(arcvideo-foundation PUBLIC opentime)
   endif()
   target_compile_definitions(arcvideo-foundation PUBLIC USE_OTIO)
+else()
+  set(ARCVIDEO_FOUNDATION_WITH_OTIO OFF)
 endif()
 
 # Platform definitions
@@ -165,11 +168,11 @@ install(TARGETS arcvideo-foundation
   ARCHIVE  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY  DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME  DESTINATION "${CMAKE_INSTALL_BINDIR}"
-  INCLUDES DESTINATION "include"
+  INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
 install(DIRECTORY include/
-  DESTINATION "include"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
 install(EXPORT arcvideo-foundation-targets
