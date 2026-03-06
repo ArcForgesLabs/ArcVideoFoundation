@@ -48,8 +48,9 @@ jobs:
           set -euo pipefail
           PORTFILE="registry/ports/arcvideo-foundation/portfile.cmake"
 
-          sed -i "s|REF .*|REF ${{ steps.calc.outputs.commit }}|" "$PORTFILE"
-          sed -i "s|SHA512 .*|SHA512 ${{ steps.calc.outputs.hash }}|" "$PORTFILE"
+          # Match "REF ..." and "SHA512 ..." with any leading whitespace, NOT "HEAD_REF ..."
+          sed -i "/^[[:space:]]*REF /s|REF .*|REF ${{ steps.calc.outputs.commit }}|" "$PORTFILE"
+          sed -i "/^[[:space:]]*SHA512 /s|SHA512 .*|SHA512 ${{ steps.calc.outputs.hash }}|" "$PORTFILE"
 
           echo "--- Updated portfile ---"
           head -10 "$PORTFILE"
