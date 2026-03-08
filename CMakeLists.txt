@@ -78,6 +78,13 @@ else()
   endif()
 endif()
 
+# Embed MSVC/UCRT/SDK system include paths into compile_commands.json so that
+# clangd can resolve system headers without the INCLUDE environment variable.
+if(MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND DEFINED ENV{INCLUDE})
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES $ENV{INCLUDE})
+  set(CMAKE_C_STANDARD_INCLUDE_DIRECTORIES $ENV{INCLUDE})
+endif()
+
 # --- Dependencies ---
 # Only when building standalone (not as subdirectory of ArcVideo)
 if(PROJECT_IS_TOP_LEVEL)

@@ -5,7 +5,6 @@
 # Visual Studio (Code) / CLion
 .localhistory/
 .history/
-.vscode/
 .vs/
 .idea
 /out/
