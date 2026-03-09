@@ -20,42 +20,40 @@
 
 #include "arcvideo/foundation/util/tests.h"
 
+#include <cstdarg>
 #include <cstddef>
 #include <cstdio>
-#include <stdarg.h>
 
 namespace arcvideo::foundation {
 
-bool Tester::run()
-{
-  size_t index = 1;
-  size_t count = test_functions_.size();
+bool Tester::run() {
+    size_t index = 1;
+    size_t count = test_functions_.size();
 
-  while (!test_functions_.empty()) {
-    echo("[%zu/%zu] %s :: ", index, count, test_names_.front());
+    while (!test_functions_.empty()) {
+        echo("[%zu/%zu] %s :: ", index, count, test_names_.front());
 
-    if (test_functions_.front()()) {
-      echo("PASSED\n");
-    } else {
-      echo("FAILED\n");
-      return false;
+        if (test_functions_.front()()) {
+            echo("PASSED\n");
+        } else {
+            echo("FAILED\n");
+            return false;
+        }
+
+        test_names_.pop_front();
+        test_functions_.pop_front();
     }
 
-    test_names_.pop_front();
-    test_functions_.pop_front();
-  }
-
-  return true;
+    return true;
 }
 
-void Tester::echo(const char *fmt, ...)
-{
-  va_list a;
-  va_start(a, fmt);
+void Tester::echo(const char *fmt, ...) {
+    va_list a;
+    va_start(a, fmt);
 
-  vfprintf(stderr, fmt, a);
+    vfprintf(stderr, fmt, a);
 
-  va_end(a);
+    va_end(a);
 }
 
-}
+}  // namespace arcvideo::foundation

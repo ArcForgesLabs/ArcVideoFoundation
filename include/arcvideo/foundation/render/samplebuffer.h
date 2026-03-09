@@ -24,8 +24,8 @@
 #include <memory>
 #include <vector>
 
-#include "audioparams.h"
 #include "../util/rational.h"
+#include "audioparams.h"
 
 namespace arcvideo::foundation {
 
@@ -37,78 +37,63 @@ namespace arcvideo::foundation {
  * replaces many of those in the rendering/processing side of things, QByteArrays are currently still in use for
  * playback, including reading to and from the cache.
  */
-class SampleBuffer
-{
+class SampleBuffer {
 public:
-  SampleBuffer();
-  SampleBuffer(const AudioParams& audio_params, const rational& length);
-  SampleBuffer(const AudioParams& audio_params, size_t samples_per_channel);
+    SampleBuffer();
+    SampleBuffer(AudioParams audio_params, const rational& length);
+    SampleBuffer(AudioParams audio_params, size_t samples_per_channel);
 
-  const AudioParams& audio_params() const;
-  void set_audio_params(const AudioParams& params);
+    const AudioParams& audio_params() const;
+    void set_audio_params(const AudioParams& params);
 
-  const size_t &sample_count() const { return sample_count_per_channel_; }
-  void set_sample_count(const size_t &sample_count);
-  void set_sample_count(const rational &length)
-  {
-    set_sample_count(audio_params_.time_to_samples(length));
-  }
+    const size_t& sample_count() const { return sample_count_per_channel_; }
+    void set_sample_count(const size_t& sample_count);
+    void set_sample_count(const rational& length) { set_sample_count(audio_params_.time_to_samples(length)); }
 
-  float* data(int channel)
-  {
-    return data_[channel].data();
-  }
+    float* data(int channel) { return data_[channel].data(); }
 
-  const float* data(int channel) const
-  {
-    return data_.at(channel).data();
-  }
+    const float* data(int channel) const { return data_.at(channel).data(); }
 
-  std::vector<float *> to_raw_ptrs()
-  {
-    std::vector<float *> r(data_.size());
-    for (size_t i=0; i<r.size(); i++) {
-      r[i] = data_[i].data();
+    std::vector<float*> to_raw_ptrs() {
+        std::vector<float*> r(data_.size());
+        for (size_t i = 0; i < r.size(); i++) {
+            r[i] = data_[i].data();
+        }
+        return r;
     }
-    return r;
-  }
 
-  int channel_count() const { return data_.size(); }
+    int channel_count() const { return data_.size(); }
 
-  bool is_allocated() const { return !data_.empty(); }
-  void allocate();
-  void destroy();
+    bool is_allocated() const { return !data_.empty(); }
+    void allocate();
+    void destroy();
 
-  void reverse();
-  void speed(double speed);
-  void transform_volume(float f);
-  void transform_volume_for_channel(int channel, float volume);
-  void transform_volume_for_sample(size_t sample_index, float volume);
-  void transform_volume_for_sample_on_channel(size_t sample_index, int channel, float volume);
+    void reverse();
+    void speed(double speed);
+    void transform_volume(float f);
+    void transform_volume_for_channel(int channel, float volume);
+    void transform_volume_for_sample(size_t sample_index, float volume);
+    void transform_volume_for_sample_on_channel(size_t sample_index, int channel, float volume);
 
-  void clamp();
+    void clamp();
 
-  void silence();
-  void silence(size_t start_sample, size_t end_sample);
-  void silence_bytes(size_t start_byte, size_t end_byte);
+    void silence();
+    void silence(size_t start_sample, size_t end_sample);
+    void silence_bytes(size_t start_byte, size_t end_byte);
 
-  void set(int channel, const float* data, size_t sample_offset, size_t sample_length);
-  void set(int channel, const float* data, size_t sample_length)
-  {
-    set(channel, data, 0, sample_length);
-  }
+    void set(int channel, const float* data, size_t sample_offset, size_t sample_length);
+    void set(int channel, const float* data, size_t sample_length) { set(channel, data, 0, sample_length); }
 
 private:
-  void clamp_channel(int channel);
+    void clamp_channel(int channel);
 
-  AudioParams audio_params_;
+    AudioParams audio_params_;
 
-  size_t sample_count_per_channel_;
+    size_t sample_count_per_channel_;
 
-  std::vector< std::vector<float> > data_;
-
+    std::vector<std::vector<float>> data_;
 };
 
-}
+}  // namespace arcvideo::foundation
 
-#endif // ARCVIDEO_FOUNDATION_SAMPLEBUFFER_H
+#endif  // ARCVIDEO_FOUNDATION_SAMPLEBUFFER_H

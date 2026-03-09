@@ -21,10 +21,10 @@
 #ifndef ARCVIDEO_FOUNDATION_VALUE_H
 #define ARCVIDEO_FOUNDATION_VALUE_H
 
+#include <cstdint>
+#include <cstring>
 #include <map>
-#include <stdint.h>
 #include <string>
-#include <string.h>
 #include <vector>
 
 namespace arcvideo::foundation {
@@ -32,66 +32,57 @@ namespace arcvideo::foundation {
 /**
  * @brief Generic type container
  */
-class Value
-{
+class Value {
 public:
-  enum Type {
-    /// Null/no data
-    NONE,
+    enum Type {
+        /// Null/no data
+        NONE,
 
-    /// Signed int64
-    INT,
+        /// Signed int64
+        INT,
 
-    /// Double-precision float
-    FLOAT,
+        /// Double-precision float
+        FLOAT,
 
-    /// UTF-8 string
-    STRING
-  };
+        /// UTF-8 string
+        STRING
+    };
 
-  Value()
-  {
-    type_ = NONE;
-  }
+    Value() : type_(NONE) {}
 
-  Value(int64_t v)
-  {
-    data_.resize(sizeof(int64_t));
-    memcpy(data_.data(), &v, sizeof(int64_t));
-    type_ = INT;
-  }
+    Value(int64_t v) : type_(INT) {
+        data_.resize(sizeof(int64_t));
+        memcpy(data_.data(), &v, sizeof(int64_t));
+    }
 
-  Value(double v)
-  {
-    data_.resize(sizeof(double));
-    memcpy(data_.data(), &v, sizeof(double));
-    type_ = FLOAT;
-  }
+    Value(double v) : type_(FLOAT) {
+        data_.resize(sizeof(double));
+        memcpy(data_.data(), &v, sizeof(double));
+    }
 
-  Value(const char *s)
-  {
-    if (!s) { type_ = NONE; return; }
-    size_t sz = strlen(s);
-    data_.resize(sz);
-    memcpy(data_.data(), s, sz);
-    type_ = STRING;
-  }
+    Value(const char *s) {
+        if (!s) {
+            type_ = NONE;
+            return;
+        }
+        size_t sz = strlen(s);
+        data_.resize(sz);
+        memcpy(data_.data(), s, sz);
+        type_ = STRING;
+    }
 
-  Value(const std::string &s)
-  {
-    data_.resize(s.size());
-    memcpy(data_.data(), s.data(), data_.size());
-    type_ = STRING;
-  }
+    Value(const std::string &s) : type_(STRING) {
+        data_.resize(s.size());
+        memcpy(data_.data(), s.data(), data_.size());
+    }
 
 private:
-  std::vector<uint8_t> data_;
-  Type type_;
-
+    std::vector<uint8_t> data_;
+    Type type_;
 };
 
 using ValueMap = std::map<std::string, Value>;
 
-}
+}  // namespace arcvideo::foundation
 
-#endif // ARCVIDEO_FOUNDATION_VALUE_H
+#endif  // ARCVIDEO_FOUNDATION_VALUE_H

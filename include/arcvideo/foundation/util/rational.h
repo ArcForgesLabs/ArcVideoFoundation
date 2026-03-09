@@ -35,115 +35,108 @@ extern "C" {
 
 namespace arcvideo::foundation {
 
-class rational
-{
+class rational {
 public:
-  rational(const int &numerator = 0)
-  {
-    r_.num = numerator;
-    r_.den = 1;
-  }
+    rational(const int &numerator = 0) {
+        r_.num = numerator;
+        r_.den = 1;
+    }
 
-  rational(const int &numerator, const int &denominator)
-  {
-    r_.num = numerator;
-    r_.den = denominator;
+    rational(const int &numerator, const int &denominator) {
+        r_.num = numerator;
+        r_.den = denominator;
 
-    fix_signs();
-    reduce();
-  }
+        fix_signs();
+        reduce();
+    }
 
-  rational(const rational &rhs) = default;
+    rational(const rational &rhs) = default;
 
-  rational(const AVRational& r)
-  {
-    r_ = r;
+    rational(const AVRational &r) {
+        r_ = r;
 
-    fix_signs();
-  }
+        fix_signs();
+    }
 
-  static rational fromDouble(const double& flt, bool *ok = nullptr);
-  static rational fromString(const std::string& str, bool* ok = nullptr);
+    static rational fromDouble(const double &flt, bool *ok = nullptr);
+    static rational fromString(const std::string &str, bool *ok = nullptr);
 
-  static const rational NaN;
+    static const rational NaN;
 
-  //Assignment Operators
-  const rational& operator=(const rational &rhs);
-  const rational& operator+=(const rational &rhs);
-  const rational& operator-=(const rational &rhs);
-  const rational& operator/=(const rational &rhs);
-  const rational& operator*=(const rational &rhs);
+    // Assignment Operators
+    rational &operator=(const rational &rhs);
+    const rational &operator+=(const rational &rhs);
+    const rational &operator-=(const rational &rhs);
+    const rational &operator/=(const rational &rhs);
+    const rational &operator*=(const rational &rhs);
 
-  //Binary math operators
-  rational operator+(const rational &rhs) const;
-  rational operator-(const rational &rhs) const;
-  rational operator/(const rational &rhs) const;
-  rational operator*(const rational &rhs) const;
+    // Binary math operators
+    rational operator+(const rational &rhs) const;
+    rational operator-(const rational &rhs) const;
+    rational operator/(const rational &rhs) const;
+    rational operator*(const rational &rhs) const;
 
-  //Relational and equality operators
-  bool operator<(const rational &rhs) const;
-  bool operator<=(const rational &rhs) const;
-  bool operator>(const rational &rhs) const;
-  bool operator>=(const rational &rhs) const;
-  bool operator==(const rational &rhs) const;
-  bool operator!=(const rational &rhs) const;
+    // Relational and equality operators
+    bool operator<(const rational &rhs) const;
+    bool operator<=(const rational &rhs) const;
+    bool operator>(const rational &rhs) const;
+    bool operator>=(const rational &rhs) const;
+    bool operator==(const rational &rhs) const;
+    bool operator!=(const rational &rhs) const;
 
-  //Unary operators
-  const rational& operator+() const { return *this; }
-  rational operator-() const { return rational(r_.num, -r_.den); }
-  bool operator!() const { return !r_.num; }
+    // Unary operators
+    const rational &operator+() const { return *this; }
+    rational operator-() const { return rational(r_.num, -r_.den); }
+    bool operator!() const { return !r_.num; }
 
-  //Function: convert to double
-  double toDouble() const;
+    // Function: convert to double
+    double toDouble() const;
 
-  AVRational toAVRational() const;
+    AVRational toAVRational() const;
 
 #ifdef USE_OTIO
-  static rational fromRationalTime(const opentime::RationalTime &t)
-  {
-    // Is this the best way to do this?
-    return fromDouble(t.to_seconds());
-  }
+    static rational fromRationalTime(const opentime::RationalTime &t) {
+        // Is this the best way to do this?
+        return fromDouble(t.to_seconds());
+    }
 
-  // Convert ArcVideo rationals to opentime rationals with the given framerate (defaults to 24)
-  opentime::RationalTime toRationalTime(double framerate = 24) const;
+    // Convert ArcVideo rationals to opentime rationals with the given framerate (defaults to 24)
+    opentime::RationalTime toRationalTime(double framerate = 24) const;
 #endif
 
-  // Produce "flipped" version
-  rational flipped() const;
-  void flip();
+    // Produce "flipped" version
+    rational flipped() const;
+    void flip();
 
-  // Returns whether the rational is valid but equal to zero or not
-  //
-  // A NaN is always a null, but a null is not always a NaN
-  bool isNull() const { return r_.num == 0; }
+    // Returns whether the rational is valid but equal to zero or not
+    //
+    // A NaN is always a null, but a null is not always a NaN
+    bool isNull() const { return r_.num == 0; }
 
-  // Returns whether this rational is not a valid number (denominator == 0)
-  bool isNaN() const { return r_.den == 0; }
+    // Returns whether this rational is not a valid number (denominator == 0)
+    bool isNaN() const { return r_.den == 0; }
 
-  const int& numerator() const { return r_.num; }
-  const int& denominator() const { return r_.den; }
+    const int &numerator() const { return r_.num; }
+    const int &denominator() const { return r_.den; }
 
-  std::string toString() const;
+    std::string toString() const;
 
-  friend std::ostream& operator<<(std::ostream &out, const rational &value)
-  {
-    out << value.r_.num << '/' << value.r_.den;
+    friend std::ostream &operator<<(std::ostream &out, const rational &value) {
+        out << value.r_.num << '/' << value.r_.den;
 
-    return out;
-  }
+        return out;
+    }
 
 private:
-  void fix_signs();
-  void reduce();
+    void fix_signs();
+    void reduce();
 
-  AVRational r_;
-
+    AVRational r_;
 };
 
 #define RATIONAL_MIN rational(INT_MIN)
 #define RATIONAL_MAX rational(INT_MAX)
 
-}
+}  // namespace arcvideo::foundation
 
-#endif // ARCVIDEO_FOUNDATION_RATIONAL_H
+#endif  // ARCVIDEO_FOUNDATION_RATIONAL_H

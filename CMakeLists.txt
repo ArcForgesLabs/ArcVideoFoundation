@@ -34,6 +34,17 @@ if(PROJECT_IS_TOP_LEVEL)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+# Copy compile_commands.json to project root for clangd / clang-tidy
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  add_custom_target(copy-compile-commands ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/build"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${CMAKE_BINARY_DIR}/compile_commands.json"
+      "${CMAKE_SOURCE_DIR}/build/compile_commands.json"
+    COMMENT "Copying compile_commands.json to build/"
+  )
+endif()
+
 # --- Compiler options ---
 # On clang-cl, /W4 is the correct equivalent of GCC -Wall -Wextra.
 if(MSVC)
