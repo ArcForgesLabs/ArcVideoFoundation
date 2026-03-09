@@ -73,7 +73,7 @@ void Color::toHsv(DataType *hue, DataType *sat, DataType *val) const {
 
     if (fDelta > 0) {
         if (fCMax == red()) {
-            *hue = static_cast<DataType>(60 * (fmod(((green() - blue()) / fDelta), 6)));
+            *hue = static_cast<DataType>(60 * (std::fmod(((green() - blue()) / fDelta), 6)));
         } else if (fCMax == green()) {
             *hue = 60 * (((blue() - red()) / fDelta) + 2);
         } else if (fCMax == blue()) {

@@ -30,7 +30,7 @@ namespace arcvideo::foundation {
 const rational rational::NaN = rational(0, 0);
 
 rational rational::fromDouble(const double &flt, bool *ok) {
-    if (isnan(flt)) {
+    if (std::isnan(flt)) {
         // Return NaN rational
         if (ok) *ok = false;
         return NaN;

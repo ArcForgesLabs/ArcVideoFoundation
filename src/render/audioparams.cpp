@@ -92,7 +92,7 @@ int64_t AudioParams::samples_to_bytes_per_channel(const int64_t &samples) const 
 }
 
 rational AudioParams::samples_to_time(const int64_t &samples) const {
-    return sample_rate_as_time_base() * static_cast<int>(samples);
+    return rational::fromDouble(static_cast<double>(samples) / sample_rate());
 }
 
 int64_t AudioParams::bytes_to_samples(const int64_t &bytes) const {

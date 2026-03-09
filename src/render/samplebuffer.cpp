@@ -223,7 +223,7 @@ void SampleBuffer::silence_bytes(size_t start_byte, size_t end_byte) {
     end_byte = std::min(end_byte, buf_size);
 
     for (int i = 0; i < audio_params().channel_count(); i++) {
-        memset(reinterpret_cast<char *>(data_[i].data()) + start_byte, 0, end_byte - start_byte);
+        std::memset(reinterpret_cast<char *>(data_[i].data()) + start_byte, 0, end_byte - start_byte);
     }
 }
 
@@ -243,7 +243,7 @@ void SampleBuffer::set(int channel, const float *data, size_t sample_offset, siz
         return;
     }
 
-    memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
+    std::memcpy(&data_[channel].data()[sample_offset], data, sizeof(float) * sample_length);
 }
 
 void SampleBuffer::clamp_channel(int channel) {

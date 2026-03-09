@@ -52,12 +52,12 @@ public:
 
     Value(int64_t v) : type_(INT) {
         data_.resize(sizeof(int64_t));
-        memcpy(data_.data(), &v, sizeof(int64_t));
+        std::memcpy(data_.data(), &v, sizeof(int64_t));
     }
 
     Value(double v) : type_(FLOAT) {
         data_.resize(sizeof(double));
-        memcpy(data_.data(), &v, sizeof(double));
+        std::memcpy(data_.data(), &v, sizeof(double));
     }
 
     Value(const char *s) {
@@ -65,15 +65,15 @@ public:
             type_ = NONE;
             return;
         }
-        size_t sz = strlen(s);
+        size_t sz = std::strlen(s);
         data_.resize(sz);
-        memcpy(data_.data(), s, sz);
+        std::memcpy(data_.data(), s, sz);
         type_ = STRING;
     }
 
     Value(const std::string &s) : type_(STRING) {
         data_.resize(s.size());
-        memcpy(data_.data(), s.data(), data_.size());
+        std::memcpy(data_.data(), s.data(), data_.size());
     }
 
 private:
