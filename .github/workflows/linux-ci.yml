@@ -103,6 +103,9 @@ jobs:
         run: cmake --preset linux-ci
 
       # ── Lint (pre-commit: clang-format, clang-tidy, codespell) ─
+      - name: Copy compile_commands.json for linting
+        run: cp build/linux-ci/compile_commands.json build/compile_commands.json
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
