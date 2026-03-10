@@ -141,6 +141,26 @@
       }
     },
     {
+      "name": "linux-debug",
+      "displayName": "Linux x64 Debug",
+      "description": "FASTBuild Debug build",
+      "inherits": ["linux-base"],
+      "binaryDir": "${sourceDir}/build/linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux x64 Release",
+      "description": "FASTBuild Release build",
+      "inherits": ["linux-base"],
+      "binaryDir": "${sourceDir}/build/linux-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
       "name": "linux-ci",
       "displayName": "Linux x64 CI",
       "description": "Linux CI build with warnings as errors",
@@ -174,6 +194,20 @@
       "name": "ci",
       "configurePreset": "windows-ci",
       "displayName": "CI",
+      "nativeToolOptions": ["-cache", "-summary"],
+      "targets": ["all"]
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug",
+      "displayName": "Linux Debug",
+      "nativeToolOptions": ["-cache", "-summary"],
+      "targets": ["all"]
+    },
+    {
+      "name": "linux-release",
+      "configurePreset": "linux-release",
+      "displayName": "Linux Release",
       "nativeToolOptions": ["-cache", "-summary"],
       "targets": ["all"]
     },

@@ -21,8 +21,6 @@
 #ifndef ARCVIDEO_FOUNDATION_MATH_H
 #define ARCVIDEO_FOUNDATION_MATH_H
 
-namespace arcvideo::foundation {
+namespace arcvideo::foundation {}
 
-}
-
-#endif // ARCVIDEO_FOUNDATION_MATH_H
+#endif  // ARCVIDEO_FOUNDATION_MATH_H

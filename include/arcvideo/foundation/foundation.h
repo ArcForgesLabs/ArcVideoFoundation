@@ -37,4 +37,4 @@
 #include "util/timerange.h"
 #include "util/value.h"
 
-#endif // ARCVIDEO_FOUNDATION_H
+#endif  // ARCVIDEO_FOUNDATION_H
