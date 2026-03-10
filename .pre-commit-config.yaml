@@ -41,7 +41,7 @@ repos:
     rev: v1.3.5
     hooks:
       - id: clang-tidy
-        files: \.(cpp|hpp|cc|hh|cxx|hxx)$
+        files: \.(c|h|cpp|hpp|cc|hh|cxx|hxx|inc)$
         exclude: sse2neon\.h$
         args: [--fix, --quiet, --use-color, -p=build]
         types_or: [c++, c]

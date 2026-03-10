@@ -25,8 +25,7 @@ extern "C" {
 #include <libavutil/channel_layout.h>
 }
 
-#include <assert.h>
-
+#include <cassert>
 #include <vector>
 
 #include "../util/rational.h"
