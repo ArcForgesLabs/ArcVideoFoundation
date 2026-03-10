@@ -101,7 +101,8 @@ public:
     }
 
     // Convert ArcVideo rationals to opentime rationals with the given framerate (defaults to 24)
-    opentime::RationalTime toRationalTime(double framerate = 24) const;
+
+    [[nodiscard]] opentime::RationalTime toRationalTime(double framerate = 24) const;
 #endif
 
     // Produce "flipped" version
