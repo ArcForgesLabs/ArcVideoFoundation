@@ -20,6 +20,4 @@
 
 #include "arcvideo/foundation/util/value.h"
 
-namespace arcvideo::foundation {
-
-}
+namespace arcvideo::foundation {}

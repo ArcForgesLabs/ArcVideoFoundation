@@ -21,6 +21,7 @@
 #ifndef ARCVIDEO_FOUNDATION_TIMERANGE_H
 #define ARCVIDEO_FOUNDATION_TIMERANGE_H
 
+#include <algorithm>
 #include <initializer_list>
 #include <list>
 #include <vector>
@@ -31,289 +32,214 @@ namespace arcvideo::foundation {
 
 class TimeRange {
 public:
-  TimeRange() = default;
-  TimeRange(const rational& in, const rational& out);
-  TimeRange(const TimeRange& r) :
-    TimeRange(r.in(), r.out())
-  {
-  }
+    TimeRange() = default;
+    TimeRange(const rational& in, const rational& out);
+    TimeRange(const TimeRange& r) : TimeRange(r.in(), r.out()) {}
 
-  TimeRange &operator=(const TimeRange &r)
-  {
-    set_range(r.in(), r.out());
-    return *this;
-  }
+    TimeRange& operator=(const TimeRange& r) {
+        set_range(r.in(), r.out());
+        return *this;
+    }
 
-  const rational& in() const;
-  const rational& out() const;
-  const rational& length() const;
+    [[nodiscard]] const rational& in() const;
+    [[nodiscard]] const rational& out() const;
+    [[nodiscard]] const rational& length() const;
 
-  void set_in(const rational& in);
-  void set_out(const rational& out);
-  void set_range(const rational& in, const rational& out);
+    void set_in(const rational& in);
+    void set_out(const rational& out);
+    void set_range(const rational& in, const rational& out);
 
-  bool operator==(const TimeRange& r) const;
-  bool operator!=(const TimeRange& r) const;
+    bool operator==(const TimeRange& r) const;
+    bool operator!=(const TimeRange& r) const;
 
-  bool OverlapsWith(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
-  bool Contains(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
-  bool Contains(const rational& r) const;
+    [[nodiscard]] bool OverlapsWith(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
+    [[nodiscard]] bool Contains(const TimeRange& a, bool in_inclusive = true, bool out_inclusive = true) const;
+    [[nodiscard]] bool Contains(const rational& r) const;
 
-  TimeRange Combined(const TimeRange& a) const;
-  static TimeRange Combine(const TimeRange &a, const TimeRange &b);
-  TimeRange Intersected(const TimeRange& a) const;
-  static TimeRange Intersect(const TimeRange &a, const TimeRange &b);
+    [[nodiscard]] TimeRange Combined(const TimeRange& a) const;
+    static TimeRange Combine(const TimeRange& a, const TimeRange& b);
+    [[nodiscard]] TimeRange Intersected(const TimeRange& a) const;
+    static TimeRange Intersect(const TimeRange& a, const TimeRange& b);
 
-  TimeRange operator+(const rational& rhs) const;
-  TimeRange operator-(const rational& rhs) const;
+    TimeRange operator+(const rational& rhs) const;
+    TimeRange operator-(const rational& rhs) const;
 
-  const TimeRange& operator+=(const rational &rhs);
-  const TimeRange& operator-=(const rational &rhs);
+    const TimeRange& operator+=(const rational& rhs);
+    const TimeRange& operator-=(const rational& rhs);
 
-  std::list<TimeRange> Split(const int &chunk_size) const;
+    [[nodiscard]] std::list<TimeRange> Split(const int& chunk_size) const;
 
 private:
-  void normalize();
+    void normalize();
 
-  rational in_;
-  rational out_;
-  rational length_;
-
+    rational in_;
+    rational out_;
+    rational length_;
 };
 
 class TimeRangeList {
 public:
-  TimeRangeList() = default;
+    TimeRangeList() = default;
 
-  TimeRangeList(std::initializer_list<TimeRange> r) :
-    array_(r)
-  {
-  }
+    TimeRangeList(std::initializer_list<TimeRange> r) : array_(r) {}
 
-  void insert(const TimeRangeList &list_to_add);
-  void insert(TimeRange range_to_add);
+    void insert(const TimeRangeList& list_to_add);
+    void insert(TimeRange range_to_add);
 
-  void remove(const TimeRange& remove);
-  void remove(const TimeRangeList &list);
+    void remove(const TimeRange& remove);
+    void remove(const TimeRangeList& list);
 
-  template <typename T>
-  static void util_remove(std::vector<T> *list, const TimeRange &remove)
-  {
-    std::vector<T> additions;
+    template <typename T>
+    static void util_remove(std::vector<T>* list, const TimeRange& remove) {
+        std::vector<T> additions;
 
-    for (auto it = list->begin(); it != list->end(); ) {
-      T& compare = *it;
+        for (auto it = list->begin(); it != list->end();) {
+            T& compare = *it;
 
-      if (remove.Contains(compare)) {
-        // This element is entirely encompassed in this range, remove it
-        it = list->erase(it);
-      } else {
-        if (compare.Contains(remove, false, false)) {
-          // The remove range is within this element, only choice is to split the element into two
-          T new_range = compare;
-          new_range.set_in(remove.out());
-          compare.set_out(remove.in());
+            if (remove.Contains(compare)) {
+                // This element is entirely encompassed in this range, remove it
+                it = list->erase(it);
+            } else {
+                if (compare.Contains(remove, false, false)) {
+                    // The remove range is within this element, only choice is to split the element into two
+                    T new_range = compare;
+                    new_range.set_in(remove.out());
+                    compare.set_out(remove.in());
 
-          additions.push_back(new_range);
-          break;
-        } else {
-          if (compare.in() < remove.in() && compare.out() > remove.in()) {
-            // This element's out point overlaps the range's in, we'll trim it
-            compare.set_out(remove.in());
-          } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
-            // This element's in point overlaps the range's out, we'll trim it
-            compare.set_in(remove.out());
-          }
+                    additions.push_back(new_range);
+                    break;
+                } else {
+                    if (compare.in() < remove.in() && compare.out() > remove.in()) {
+                        // This element's out point overlaps the range's in, we'll trim it
+                        compare.set_out(remove.in());
+                    } else if (compare.in() < remove.out() && compare.out() > remove.out()) {
+                        // This element's in point overlaps the range's out, we'll trim it
+                        compare.set_in(remove.out());
+                    }
 
-          it++;
+                    it++;
+                }
+            }
         }
-      }
+
+        list->insert(list->end(), additions.begin(), additions.end());
     }
 
-    list->insert(list->end(), additions.begin(), additions.end());
-  }
+    [[nodiscard]] bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
 
-  bool contains(const TimeRange& range, bool in_inclusive = true, bool out_inclusive = true) const;
-
-  bool contains(const rational &r) const
-  {
-    for (const TimeRange &range : array_) {
-      if (range.Contains(r)) {
-        return true;
-      }
+    [[nodiscard]] bool contains(const rational& r) const {
+        return std::ranges::any_of(array_, [&r](const TimeRange& range) { return range.Contains(r); });
     }
 
-    return false;
-  }
-
-  bool OverlapsWith(const TimeRange& r, bool in_inclusive = true, bool out_inclusive = true) const
-  {
-    for (const TimeRange &range : array_) {
-      if (range.OverlapsWith(r, in_inclusive, out_inclusive)) {
-        return true;
-      }
+    [[nodiscard]] bool OverlapsWith(const TimeRange& r, bool in_inclusive = true, bool out_inclusive = true) const {
+        return std::ranges::any_of(array_, [&r, in_inclusive, out_inclusive](const TimeRange& range) {
+            return range.OverlapsWith(r, in_inclusive, out_inclusive);
+        });
     }
 
-    return false;
-  }
+    [[nodiscard]] bool isEmpty() const { return array_.empty(); }
 
-  bool isEmpty() const
-  {
-    return array_.empty();
-  }
+    void clear() { array_.clear(); }
 
-  void clear()
-  {
-    array_.clear();
-  }
+    [[nodiscard]] int size() const { return static_cast<int>(array_.size()); }
 
-  int size() const
-  {
-    return array_.size();
-  }
+    void shift(const rational& diff);
 
-  void shift(const rational& diff);
+    void trim_in(const rational& diff);
 
-  void trim_in(const rational& diff);
+    void trim_out(const rational& diff);
 
-  void trim_out(const rational& diff);
+    [[nodiscard]] TimeRangeList Intersects(const TimeRange& range) const;
 
-  TimeRangeList Intersects(const TimeRange& range) const;
+    using const_iterator = std::vector<TimeRange>::const_iterator;
 
-  using const_iterator = std::vector<TimeRange>::const_iterator;
+    [[nodiscard]] const_iterator begin() const { return array_.cbegin(); }
 
-  const_iterator begin() const
-  {
-    return array_.cbegin();
-  }
+    [[nodiscard]] const_iterator end() const { return array_.cend(); }
 
-  const_iterator end() const
-  {
-    return array_.cend();
-  }
+    [[nodiscard]] const_iterator cbegin() const { return begin(); }
 
-  const_iterator cbegin() const
-  {
-    return begin();
-  }
+    [[nodiscard]] const_iterator cend() const { return end(); }
 
-  const_iterator cend() const
-  {
-    return end();
-  }
+    [[nodiscard]] const TimeRange& first() const { return array_.front(); }
 
-  const TimeRange& first() const
-  {
-    return array_.front();
-  }
+    [[nodiscard]] const TimeRange& last() const { return array_.back(); }
 
-  const TimeRange& last() const
-  {
-    return array_.back();
-  }
+    [[nodiscard]] const TimeRange& at(int index) const { return array_.at(index); }
 
-  const TimeRange& at(int index) const
-  {
-    return array_.at(index);
-  }
+    [[nodiscard]] const std::vector<TimeRange>& internal_array() const { return array_; }
 
-  const std::vector<TimeRange>& internal_array() const
-  {
-    return array_;
-  }
-
-  bool operator==(const TimeRangeList &rhs) const
-  {
-    return array_ == rhs.array_;
-  }
+    bool operator==(const TimeRangeList& rhs) const { return array_ == rhs.array_; }
 
 private:
-  std::vector<TimeRange> array_;
-
+    std::vector<TimeRange> array_;
 };
 
-class TimeRangeListFrameIterator
-{
+class TimeRangeListFrameIterator {
 public:
-  TimeRangeListFrameIterator();
-  TimeRangeListFrameIterator(const TimeRangeList &list, const rational &timebase);
+    TimeRangeListFrameIterator();
+    TimeRangeListFrameIterator(TimeRangeList list, const rational& timebase);
 
-  rational Snap(const rational &r) const;
+    [[nodiscard]] rational Snap(const rational& r) const;
 
-  bool GetNext(rational *out);
+    bool GetNext(rational* out);
 
-  bool HasNext() const;
+    [[nodiscard]] bool HasNext() const;
 
-  std::vector<rational> ToVector() const
-  {
-    TimeRangeListFrameIterator copy(list_, timebase_);
-    std::vector<rational> times;
-    rational r;
-    while (copy.GetNext(&r)) {
-      times.push_back(r);
+    [[nodiscard]] std::vector<rational> ToVector() const {
+        TimeRangeListFrameIterator copy(list_, timebase_);
+        std::vector<rational> times;
+        rational r;
+        while (copy.GetNext(&r)) {
+            times.push_back(r);
+        }
+        return times;
     }
-    return times;
-  }
 
-  int size();
+    int size();
 
-  void reset()
-  {
-    *this = TimeRangeListFrameIterator();
-  }
+    void reset() { *this = TimeRangeListFrameIterator(); }
 
-  void insert(const TimeRange &range)
-  {
-    list_.insert(range);
-    size_ = -1;
-    range_index_ = -1;
-    frame_index_ = 0;
-    UpdateIndexIfNecessary();
-  }
+    void insert(const TimeRange& range) {
+        list_.insert(range);
+        size_ = -1;
+        range_index_ = -1;
+        frame_index_ = 0;
+        UpdateIndexIfNecessary();
+    }
 
-  void insert(const TimeRangeList &list)
-  {
-    list_.insert(list);
-    size_ = -1;
-    range_index_ = -1;
-    frame_index_ = 0;
-    UpdateIndexIfNecessary();
-  }
+    void insert(const TimeRangeList& list) {
+        list_.insert(list);
+        size_ = -1;
+        range_index_ = -1;
+        frame_index_ = 0;
+        UpdateIndexIfNecessary();
+    }
 
-  bool IsCustomRange() const
-  {
-    return custom_range_;
-  }
+    [[nodiscard]] bool IsCustomRange() const { return custom_range_; }
 
-  void SetCustomRange(bool e)
-  {
-    custom_range_ = e;
-  }
+    void SetCustomRange(bool e) { custom_range_ = e; }
 
-  int frame_index() const
-  {
-    return frame_index_;
-  }
+    [[nodiscard]] int frame_index() const { return frame_index_; }
 
 private:
-  void UpdateIndexIfNecessary();
+    void UpdateIndexIfNecessary();
 
-  TimeRangeList list_;
+    TimeRangeList list_;
 
-  rational timebase_;
+    rational timebase_;
 
-  rational current_;
+    rational current_;
 
-  int range_index_;
+    int range_index_;
 
-  int size_;
+    int size_;
 
-  int frame_index_;
+    int frame_index_;
 
-  bool custom_range_;
-
+    bool custom_range_;
 };
 
-}
+}  // namespace arcvideo::foundation
 
-#endif // ARCVIDEO_FOUNDATION_TIMERANGE_H
+#endif  // ARCVIDEO_FOUNDATION_TIMERANGE_H

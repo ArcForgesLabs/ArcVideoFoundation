@@ -29,4 +29,4 @@
 #include "sse2neon.h"
 #endif
 
-#endif // ARCVIDEO_FOUNDATION_CPUOPTIMIZE_H
+#endif  // ARCVIDEO_FOUNDATION_CPUOPTIMIZE_H
