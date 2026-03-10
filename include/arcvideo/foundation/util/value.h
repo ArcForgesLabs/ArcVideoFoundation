@@ -21,9 +21,8 @@
 #ifndef ARCVIDEO_FOUNDATION_VALUE_H
 #define ARCVIDEO_FOUNDATION_VALUE_H
 
-#include <stdint.h>
-#include <string.h>
-
+#include <cstdint>
+#include <cstring>
 #include <map>
 #include <string>
 #include <vector>
