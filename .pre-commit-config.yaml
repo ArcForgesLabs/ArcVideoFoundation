@@ -45,5 +45,5 @@ repos:
         exclude: sse2neon\.h$
         args: [--fix, --quiet, --use-color, -p=build]
         types_or: [c++, c]
-        require_serial: true
+        require_serial: false
         additional_dependencies: [clang-tidy==22.1.0]
